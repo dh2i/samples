@@ -1,0 +1,63 @@
+#DxEnterprise + MSSQL StatefulSet 
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dxemssql
+spec:
+  serviceName: "dxemssql"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dxemssql
+  template:
+    metadata:
+      labels:
+        app: dxemssql
+    spec:
+      securityContext:
+        fsGroup: 7979
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+      - name: sql
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_ENABLE_HADR
+          value: "1"
+        - name: MSSQL_SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: MSSQL_SA_PASSWORD
+        volumeMounts:
+        - name: mssql
+          mountPath: "/var/opt/mssql"
+      - name: dxe
+        image: dh2i/dxe
+        env:
+        - name: MSSQL_SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: MSSQL_SA_PASSWORD
+        volumeMounts:
+        - name: dxe
+          mountPath: "/etc/dh2i"
+  volumeClaimTemplates:
+  - metadata:
+      name: dxe
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+  - metadata:
+      name: mssql
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi

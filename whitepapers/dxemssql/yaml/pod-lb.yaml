@@ -1,0 +1,26 @@
+#Example load balancer service
+#Access for SQL server, AG listener, and DxE management
+apiVersion: v1
+kind: Service
+metadata:
+  #Unique name
+  name: dxemssql-0-lb
+spec:
+  type: LoadBalancer
+  loadBalancerIP: <static_ip>
+  selector:
+    #Assign load balancer to a specific pod
+    statefulset.kubernetes.io/pod-name: dxemssql-0
+  ports:
+  - name: sql
+    protocol: TCP
+    port: 1433
+    targetPort: 1433
+  - name: listener
+    protocol: TCP
+    port: 14033
+    targetPort: 14033
+  - name: dxe
+    protocol: TCP
+    port: 7979
+    targetPort: 7979

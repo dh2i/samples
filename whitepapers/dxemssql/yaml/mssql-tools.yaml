@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mssql-tools
+spec:
+  containers:
+  - name: sqlcmd
+    image: mcr.microsoft.com/mssql-tools
+    command: ["/bin/bash", "-c", "--"]
+    args: ["while true; do sleep 30; done;"]
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always
